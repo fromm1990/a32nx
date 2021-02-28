@@ -73,11 +73,11 @@ void FlightDataRecorder::update(AutopilotStateMachineModelClass* autopilotStateM
   manageFlightDataRecorderFiles();
 
   // write data to file
-  fileStream->write(reinterpret_cast<char*>(&autopilotStateMachine->AutopilotStateMachine_Y.out),
-                    sizeof(autopilotStateMachine->AutopilotStateMachine_Y.out));
-  fileStream->write(reinterpret_cast<char*>(&autopilotLaws->AutopilotLaws_Y.out.output),
-                    sizeof(autopilotLaws->AutopilotLaws_Y.out.output));
-  fileStream->write(reinterpret_cast<char*>(&flyByWire->FlyByWire_Y.out), sizeof(flyByWire->FlyByWire_Y.out));
+  fileStream->write((char*)(&autopilotStateMachine->getExternalOutputs().out),
+                    sizeof(autopilotStateMachine->getExternalOutputs().out));
+  fileStream->write((char*)(&autopilotLaws->getExternalOutputs().out.output),
+                    sizeof(autopilotLaws->getExternalOutputs().out.output));
+  fileStream->write((char*)(&flyByWire->getExternalOutputs().out), sizeof(flyByWire->getExternalOutputs().out));
 }
 
 void FlightDataRecorder::terminate() {

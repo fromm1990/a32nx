@@ -23,6 +23,7 @@
 
 #include "AutopilotLaws.h"
 #include "AutopilotStateMachine.h"
+#include "Autothrust.h"
 #include "FlightDataRecorder.h"
 #include "FlyByWire.h"
 #include "InterpolatingLookupTable.h"
@@ -63,6 +64,7 @@ class FlyByWireInterface {
   bool autopilotStateMachineEnabled = false;
   bool autopilotLawsEnabled = false;
   bool flyByWireEnabled = false;
+  bool autoThrustEnabled = false;
   bool autoThrustWorkaroundEnabled = false;
 
   bool pauseDetected = false;
@@ -71,8 +73,13 @@ class FlyByWireInterface {
 
   SimConnectInterface simConnectInterface;
   FlyByWireModelClass flyByWire;
+  FlyByWireModelClass::ExternalInputs_FlyByWire_T flyByWireInput = {};
   AutopilotStateMachineModelClass autopilotStateMachine;
+  AutopilotStateMachineModelClass::ExternalInputs_AutopilotStateMachine_T autopilotStateMachineInput = {};
   AutopilotLawsModelClass autopilotLaws;
+  AutopilotLawsModelClass::ExternalInputs_AutopilotLaws_T autopilotLawsInput = {};
+  AutothrustModelClass autoThrust;
+  AutothrustModelClass::ExternalInputs_Autothrust_T autoThrustInput = {};
   InterpolatingLookupTable throttleLookupTable;
 
   RateLimiter rateLimiterEngine_1;
@@ -80,17 +87,6 @@ class FlyByWireInterface {
 
   ID idSideStickPositionX;
   ID idSideStickPositionY;
-  ID idSideStickLeftPositionX;
-  ID idSideStickLeftPositionY;
-  ID idSideStickRightPositionX;
-  ID idSideStickRightPositionY;
-
-  ID idRudderPositionOverrideOn;
-  ID idRudderPosition;
-
-  ID idThrottlePositionOverrideOn;
-  ID idThrottlePosition_1;
-  ID idThrottlePosition_2;
 
   ID idFmaLateralMode;
   ID idFmaLateralArmed;
@@ -107,7 +103,7 @@ class FlyByWireInterface {
   ID idAutopilotActive_1;
   ID idAutopilotActive_2;
 
-  ID idAutothrustMode;
+  ID idAutopilotAutothrustMode;
 
   ID idFcuTrkFpaModeActive;
   ID idFcuSelectedFpa;
@@ -135,6 +131,24 @@ class FlyByWireInterface {
   ID idFmgcAccelerationAltitudeEngineOut;
   ID idFmgcAccelerationAltitudeGoAround;
   ID idFmgcCruiseAltitude;
+  ID idFmgcFlexTemperature;
+
+  ID idAutothrustN1_TLA_1;
+  ID idAutothrustN1_TLA_2;
+  ID idAutothrustReverse_1;
+  ID idAutothrustReverse_2;
+  ID idAutothrustThrustLimitType;
+  ID idAutothrustThrustLimit;
+  ID idAutothrustN1_c_1;
+  ID idAutothrustN1_c_2;
+  ID idAutothrustStatus;
+  ID idAutothrustMode;
+  ID idAutothrustModeMessage;
+  ID idAutothrust_TLA_1;
+  ID idAutothrust_TLA_2;
+  ID idThrottlePosition3d_1;
+  ID idThrottlePosition3d_2;
+  InterpolatingLookupTable idThrottlePositionLookupTable;
 
   ap_raw_laws_input autopilotStateMachineOutput;
   ap_raw_output autopilotLawsOutput;
