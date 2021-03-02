@@ -1596,7 +1596,7 @@ void AutopilotStateMachineModelClass::AutopilotStateMachine_exit_internal_ON(voi
 
 void AutopilotStateMachineModelClass::AutopilotStateMachine_SRS_GA_entry(void)
 {
-  AutopilotStateMachine_B.out.mode = vertical_mode_SRS;
+  AutopilotStateMachine_B.out.mode = vertical_mode_SRS_GA;
   AutopilotStateMachine_B.out.law = vertical_law_SRS;
   AutopilotStateMachine_B.out.mode_autothrust = athr_mode_NONE;
   AutopilotStateMachine_B.out.V_c_kn = AutopilotStateMachine_B.BusAssignment_g.data.V_ias_kn;
@@ -2147,7 +2147,8 @@ void AutopilotStateMachineModelClass::step()
   rtb_cGA = ((!AutopilotStateMachine_DWork.sThrottleCondition) && throttleCondition &&
              (AutopilotStateMachine_U.in.data.flaps_handle_index >= 1.0) && ((rtb_on_ground == 0) || (rtb_y_f < 30.0)) &&
              (AutopilotStateMachine_DWork.Delay_DSTATE.output.mode != lateral_mode_GA_TRACK) &&
-             (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS));
+             (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS) &&
+             (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS_GA));
   AutopilotStateMachine_DWork.sThrottleCondition = throttleCondition;
   if ((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_CLB) ||
       (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_OP_CLB) ||
@@ -2205,12 +2206,14 @@ void AutopilotStateMachineModelClass::step()
         if (rtb_DataTypeConversion3_g == rtb_Switch_d) {
           throttleCondition = true;
         } else {
-          throttleCondition = ((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS) &&
+          throttleCondition = (((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS) ||
+                                (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS_GA)) &&
                                (AutopilotStateMachine_U.in.input.H_fcu_ft - AutopilotStateMachine_U.in.data.H_ind_ft >
                                 250.0));
         }
       } else {
-        throttleCondition = ((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS) &&
+        throttleCondition = (((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS) ||
+                              (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS_GA)) &&
                              (AutopilotStateMachine_U.in.input.H_fcu_ft - AutopilotStateMachine_U.in.data.H_ind_ft >
                               250.0));
       }
@@ -2240,7 +2243,8 @@ void AutopilotStateMachineModelClass::step()
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_OP_DES) ||
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_VS) ||
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_FPA) ||
-    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS)));
+    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS) ||
+    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS_GA)));
   switch (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode) {
    case vertical_mode_ALT_CPT:
     AutopilotStateMachine_DWork.newFcuAltitudeSelected_b = 0.0;
@@ -2271,7 +2275,8 @@ void AutopilotStateMachineModelClass::step()
 
   throttleCondition = (((AutopilotStateMachine_U.in.data.H_radio_ft < 30.0) &&
                         ((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_NONE) ||
-    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS)) &&
+    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS) ||
+    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode == vertical_mode_SRS_GA)) &&
                         (AutopilotStateMachine_U.in.data.acceleration_altitude > 0.0) &&
                         (AutopilotStateMachine_U.in.data.acceleration_altitude <
     AutopilotStateMachine_U.in.input.H_fcu_ft)) || ((AutopilotStateMachine_U.in.data.H_radio_ft >= 30.0) &&
@@ -2287,7 +2292,8 @@ void AutopilotStateMachineModelClass::step()
     ((AutopilotStateMachine_U.in.input.H_fcu_ft != AutopilotStateMachine_U.in.input.H_constraint_ft) &&
      ((!(AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_ALT_CST)) ||
       (!(AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_ALT_CST_CPT)) ||
-      (!(AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS))))))) && (throttleCondition &&
+      (!(AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS)) ||
+      (!(AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS_GA))))))) && (throttleCondition &&
     AutopilotStateMachine_DWork.sCLB));
   AutopilotStateMachine_DWork.sDES = (((rtb_on_ground == 0) && (AutopilotStateMachine_U.in.input.H_fcu_ft -
     AutopilotStateMachine_U.in.data.H_ind_ft < -50.0) && ((AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode ==
@@ -2559,6 +2565,7 @@ void AutopilotStateMachineModelClass::step()
      (AutopilotStateMachine_DWork.Delay_DSTATE.output.mode == lateral_mode_LOC_CPT) ||
      (AutopilotStateMachine_DWork.Delay_DSTATE.output.mode == lateral_mode_LOC_TRACK)) &&
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS) &&
+    (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_SRS_GA) &&
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_GS_CPT) &&
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_GS_TRACK) &&
     (AutopilotStateMachine_DWork.Delay1_DSTATE.output.mode != vertical_mode_LAND) &&

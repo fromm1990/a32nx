@@ -1094,6 +1094,7 @@ var Airbus_FMA;
                             break;
 
                         case 40:
+                        case 41:
                             this.setRowText(0, "SRS", Airbus_FMA.MODE_STATE.ENGAGED);
                             break;
 
