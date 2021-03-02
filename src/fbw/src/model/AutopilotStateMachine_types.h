@@ -46,6 +46,7 @@ typedef struct {
   real_T nav_gs_error_deg;
   real_T flight_guidance_xtk_nmi;
   real_T flight_guidance_tae_deg;
+  real_T flight_guidance_phi_deg;
   real_T flight_phase;
   real_T V2_kn;
   real_T VAPP_kn;
@@ -166,6 +167,7 @@ typedef struct {
   real_T nav_gs_error_deg;
   real_T flight_guidance_xtk_nmi;
   real_T flight_guidance_tae_deg;
+  real_T flight_guidance_phi_deg;
   real_T flight_phase;
   real_T V2_kn;
   real_T VAPP_kn;
@@ -270,7 +272,8 @@ typedef enum {
   vertical_mode_LAND = 32,
   vertical_mode_FLARE = 33,
   vertical_mode_ROLL_OUT = 34,
-  vertical_mode_SRS = 40
+  vertical_mode_SRS = 40,
+  vertical_mode_SRS_GA = 41
 } vertical_mode;
 
 #endif

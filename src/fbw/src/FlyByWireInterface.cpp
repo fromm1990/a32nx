@@ -113,28 +113,32 @@ bool FlyByWireInterface::readDataAndLocalVariables(double sampleTime) {
 
   // read local variables and update client data
   // update client data for flight guidance
-  ClientDataLocalVariables clientDataLocalVariables = {
-      get_named_variable_value(idFlightPhase),
-      get_named_variable_value(idFmgcV2),
-      get_named_variable_value(idFmgcV_APP),
-      get_named_variable_value(idFmgcV_LS),
-      customFlightGuidanceEnabled ? 1.0 : simData.gpsIsFlightPlanActive,
-      get_named_variable_value(idFmgcAltitudeConstraint),
-      get_named_variable_value(idFmgcThrustReductionAltitude),
-      get_named_variable_value(idFmgcThrustReductionAltitudeGoAround),
-      get_named_variable_value(idFmgcAccelerationAltitude),
-      get_named_variable_value(idFmgcAccelerationAltitudeEngineOut),
-      get_named_variable_value(idFmgcAccelerationAltitudeGoAround),
-      get_named_variable_value(idFmgcCruiseAltitude),
-      0,
-      get_named_variable_value(idFcuTrkFpaModeActive),
-      get_named_variable_value(idFcuSelectedVs),
-      get_named_variable_value(idFcuSelectedFpa),
-      get_named_variable_value(idFcuSelectedHeading),
-      customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidanceCrossTrackError) : simData.gpsWpCrossTrack,
-      customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidanceTrackAngleError)
-                                  : simData.gpsWpTrackAngleError};
-  simConnectInterface.setClientDataLocalVariables(clientDataLocalVariables);
+  if (!autopilotStateMachineEnabled || !autopilotLawsEnabled) {
+    ClientDataLocalVariables clientDataLocalVariables = {
+        get_named_variable_value(idFlightPhase),
+        get_named_variable_value(idFmgcV2),
+        get_named_variable_value(idFmgcV_APP),
+        get_named_variable_value(idFmgcV_LS),
+        customFlightGuidanceEnabled ? 1.0 : simData.gpsIsFlightPlanActive,
+        get_named_variable_value(idFmgcAltitudeConstraint),
+        get_named_variable_value(idFmgcThrustReductionAltitude),
+        get_named_variable_value(idFmgcThrustReductionAltitudeGoAround),
+        get_named_variable_value(idFmgcAccelerationAltitude),
+        get_named_variable_value(idFmgcAccelerationAltitudeEngineOut),
+        get_named_variable_value(idFmgcAccelerationAltitudeGoAround),
+        get_named_variable_value(idFmgcCruiseAltitude),
+        0,
+        get_named_variable_value(idFcuTrkFpaModeActive),
+        get_named_variable_value(idFcuSelectedVs),
+        get_named_variable_value(idFcuSelectedFpa),
+        get_named_variable_value(idFcuSelectedHeading),
+        customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidanceCrossTrackError)
+                                    : simData.gpsWpCrossTrack,
+        customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidanceTrackAngleError)
+                                    : simData.gpsWpTrackAngleError,
+        customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidancePhiCommand) : 0};
+    simConnectInterface.setClientDataLocalVariables(clientDataLocalVariables);
+  }
 
   // detect pause
   if ((simData.simulationTime == previousSimulationTime) || (simData.simulationTime < 0.2)) {
@@ -195,6 +199,8 @@ bool FlyByWireInterface::updateAutopilotStateMachine(double sampleTime) {
     autopilotStateMachine.AutopilotStateMachine_U.in.data.flight_guidance_tae_deg =
         customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidanceTrackAngleError)
                                     : simData.gpsWpTrackAngleError;
+    autopilotStateMachine.AutopilotStateMachine_U.in.data.flight_guidance_phi_deg =
+        customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidancePhiCommand) : 0;
     autopilotStateMachine.AutopilotStateMachine_U.in.data.flight_phase = get_named_variable_value(idFlightPhase);
     autopilotStateMachine.AutopilotStateMachine_U.in.data.V2_kn = get_named_variable_value(idFmgcV2);
     autopilotStateMachine.AutopilotStateMachine_U.in.data.VAPP_kn = get_named_variable_value(idFmgcV_APP);
@@ -444,6 +450,8 @@ bool FlyByWireInterface::updateAutopilotLaws(double sampleTime) {
     autopilotLaws.AutopilotLaws_U.in.data.flight_guidance_tae_deg =
         customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidanceTrackAngleError)
                                     : simData.gpsWpTrackAngleError;
+    autopilotLaws.AutopilotLaws_U.in.data.flight_guidance_phi_deg =
+        customFlightGuidanceEnabled ? get_named_variable_value(idFlightGuidancePhiCommand) : 0;
     autopilotLaws.AutopilotLaws_U.in.data.flight_phase = get_named_variable_value(idFlightPhase);
     autopilotLaws.AutopilotLaws_U.in.data.V2_kn = get_named_variable_value(idFmgcV2);
     autopilotLaws.AutopilotLaws_U.in.data.VAPP_kn = get_named_variable_value(idFmgcV_APP);
@@ -747,6 +755,7 @@ void FlyByWireInterface::setupLocalVariables() {
   idFlightGuidanceAvailable = register_named_variable("A32NX_FG_AVAIL");
   idFlightGuidanceCrossTrackError = register_named_variable("A32NX_FG_CROSS_TRACK_ERROR");
   idFlightGuidanceTrackAngleError = register_named_variable("A32NX_FG_TRACK_ANGLE_ERROR");
+  idFlightGuidancePhiCommand = register_named_variable("A32NX_FG_PHI_COMMAND");
 
   idFcuTrkFpaModeActive = register_named_variable("A32NX_TRK_FPA_MODE_ACTIVE");
   idFcuSelectedFpa = register_named_variable("A32NX_AUTOPILOT_FPA_SELECTED");

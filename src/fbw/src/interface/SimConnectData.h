@@ -193,6 +193,7 @@ struct ClientDataLocalVariables {
   double fcuSelectedVs;
   double fcuSelectedFpa;
   double fcuSelectedHeading;
-  double crossTrackError;
-  double trackAngleError;
+  double flightManagementCrossTrackError;
+  double flightManagementTrackAngleError;
+  double flightManagementPhiCommand;
 };
